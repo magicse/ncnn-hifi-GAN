@@ -16,5 +16,5 @@ In TTS based on deep learning, there are two stages to generate speech from text
 
 The performance of WaveNet is almost the same as that of human speech, but the generation speed is too slow. Recently, GAN-based Vocoder, such as MelGAN, tries to further increase the speed of speech generation. However, this type of model sacrifices quality while improving efficiency. Therefore, researchers hope to have a Vocoder with both efficiency and quality, this is HiFi-GAN.
 
-
+# ncnn is a high-performance neural network - [NCNN](https://github.com/Tencent/ncnn)
 
