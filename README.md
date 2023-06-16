@@ -1,5 +1,5 @@
 # ncnn-hifi-GAN
-HiFi-GAN - GAN-based high-speed Neural Vocoder for Efficient and High Fidelity Speech Synthesis.
+HiFi-GAN - GAN-based high-speed Neural Vocoder for Efficient and High Fidelity Speech Synthesis for TTS and Realistic Voice Conversion.
 
 HiFi-GAN has improved the shortcomings of poor voice quality in previous GAN-based works.
 
