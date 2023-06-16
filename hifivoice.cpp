@@ -68,10 +68,7 @@ static int HIFIVOICE(const cv::Mat& mel0)
     std::cout << "Max mel magnitude val: " << Max_mel_bank << std::endl;
     std::cout << "Min mel magnitude val: " << Min_mel_bank << std::endl;
 
-    //int width = melscpectro.cols;   // Current width
-    //int height = melscpectro.rows;  // Current height
-    //melscpectro =  melscpectro.reshape(0, height * width).reshape(0, width);  // Reshape the image
-     std::cout << melscpectro.size () << "; ch: " << melscpectro.channels () << std::endl;
+    std::cout << melscpectro.size () << "; ch: " << melscpectro.channels () << std::endl;
 
     // cv::Mat a(h, w, CV_32FC1);
     ncnn::Mat MelIn(melscpectro.cols, melscpectro.rows, 1, (void*)melscpectro.data);
@@ -87,28 +84,17 @@ static int HIFIVOICE(const cv::Mat& mel0)
     int numSamples = out.w * out.h;
     //max_magnitude = max_amplitude / (n_fft / 2)
 
-    //const float* outptr = out;
-    //out = out * MAX_WAV_VALUE * 2;
-
-    pretty_printv(out);
     for (int i = 0; i < numSamples; i++)
     {
         out[i] = out[i]* MAX_WAV_VALUE;
     }
-    pretty_printv(out);
+    //pretty_printv(out);
 
     const char* outputPath = "output.wav";
     SF_INFO sfInfoOut;
     sfInfoOut.samplerate = 22050;
     float* audioData = new float[numSamples];
     memcpy(audioData, out.data, sizeof(float) * numSamples);
-
-    //std::vector<int16_t> int16AudioData(numSamples);
-    //for (int i = 0; i < numSamples; i++)
-    //{
-    //    int16AudioData[i] = static_cast<int16_t>(audioData[i] * std::numeric_limits<int16_t>::max());
-    //}
-
 
     std::vector<int16_t> int16AudioData(numSamples);
     for (int i = 0; i < numSamples; i++)
@@ -136,10 +122,7 @@ static int HIFIVOICE(const cv::Mat& mel0)
     }
 
     // Write the audio data to the output file
-    //pretty_printv(out);
-    //sf_write_float(sndFileOut, audioData, numSamples);
     sf_write_short(sndFileOut, int16AudioData.data(), numSamples);
-    //sf_write_float(sndFileOut, int16AudioData, numSamples);
 
     // Close the output file
     sf_close(sndFileOut);
