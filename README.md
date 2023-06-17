@@ -1,6 +1,6 @@
 # ncnn-hifi-GAN
 
-![melgram_flipped](https://github.com/magicse/ncnn-hifi-GAN/assets/13585785/b1042b11-2efa-4442-9422-bf4a4d2b1d4e)
+![img](https://github.com/magicse/ncnn-hifi-GAN/assets/13585785/d788069e-769d-4b8d-b13f-4783d7c446aa)
 
 HiFi-GAN - GAN-based high-speed Neural Vocoder for Efficient and High Fidelity Speech Synthesis in TTS pipeline and Realistic Voice Conversion.
 
@@ -30,4 +30,5 @@ To use mel-spectrogram from a picture, the values need to be scaled. Mel_Image =
    - fmax = 8000   
 
 ## ncnn is a high-performance neural network - [NCNN](https://github.com/Tencent/ncnn)
+
 
