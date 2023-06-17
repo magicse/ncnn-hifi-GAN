@@ -15,7 +15,7 @@ In TTS based on deep learning, there are two stages to generate speech from text
 
 The performance of WaveNet is almost the same as that of human speech, but the generation speed is too slow. Recently, GAN-based Vocoder, such as MelGAN, tries to further increase the speed of speech generation. However, this type of model sacrifices quality while improving efficiency. Therefore, researchers hope to have a Vocoder with both efficiency and quality, this is HiFi-GAN.
 ## How to use.
-1. Download model here [model](https://github.com/magicse/ncnn-hifi-GAN/releases/download/models/models.zip) and place it in /models folder. 
+1. Download model [hifivoice](https://github.com/magicse/ncnn-hifi-GAN/releases/download/models/models.zip) and place it in /models folder. 
 2. hifivoice.exe -i melgram_flipped.jpg
 3. The input range of the mel-spectrogram for the vocoder is approximately from -11 to 2. 
 For example, we take a mel-spectrogram saved in a regular jpg file with a magnitude range of 0..255. 
