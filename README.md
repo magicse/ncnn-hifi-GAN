@@ -10,17 +10,23 @@ The experimental results prove that HiFi-GAN can generate 22.05 kHz speech 13.4 
 
 In TTS based on deep learning, there are two stages to generate speech from text: 
 
-(1) generate mel-spec from text, typically such as Tacotron and FastSpeech , 
-
-(2) generate speech from mel-spec, such as WaveNet and WaveRNN .
+1. generate mel-spec from text, typically such as Tacotron and FastSpeech , 
+2. generate speech from mel-spec, such as WaveNet and WaveRNN .
 
 The performance of WaveNet is almost the same as that of human speech, but the generation speed is too slow. Recently, GAN-based Vocoder, such as MelGAN, tries to further increase the speed of speech generation. However, this type of model sacrifices quality while improving efficiency. Therefore, researchers hope to have a Vocoder with both efficiency and quality, this is HiFi-GAN.
 # How to use.
-The input range of the mel-spectrogram for the vocoder is approximately from -11 to 2. 
-
+1. hifivoice.exe -i melgram_flipped.jpg
+2. The input range of the mel-spectrogram for the vocoder is approximately from -11 to 2. 
 For example, we take a mel-spectrogram saved in a regular jpg file with a magnitude range of 0..255. 
-
 To use mel-spectrogram from a picture, the values need to be scaled. Mel_Image = Mel_Image * (1/255) * 13 - 11 = we get a range of values from -11 to 2.
+3. Mel spectrogram paramters:
+   - n_fft = 1024
+   - num_mels = 80
+   - sampling_rate = 22050
+   - hop_size = 256
+   - win_size = 1024
+   - fmin = 0
+   - fmax = 8000   
 
 ## ncnn is a high-performance neural network - [NCNN](https://github.com/Tencent/ncnn)
 
