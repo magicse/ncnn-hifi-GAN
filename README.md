@@ -29,6 +29,8 @@ To use mel-spectrogram from a picture, the values need to be scaled. Mel_Image =
    - fmin = 0
    - fmax = 8000   
 
-## ncnn is a high-performance neural network - [NCNN](https://github.com/Tencent/ncnn)
+[NCNN](https://github.com/Tencent/ncnn) is a high-performance neural network.
+
+[HiFi-GAN](https://github.com/jik876/hifi-gan) Generative Adversarial Networks for Efficient and High Fidelity Speech Synthesis.
 
 
