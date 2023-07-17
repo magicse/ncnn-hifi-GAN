@@ -97,14 +97,11 @@ void main()
 #if NCNN_image_shader
 
 #else
-		    int w_offset = kernel_w * psc(h) * gy; // Calculate the starting offset for the weights
-			ivec2 w_offsetv = kernel_w * psc(h) * gy2;
+			ivec2 w_offsetv = kernel_w * psc(h) * gy2;  // Calculate the starting offset for the weights
 			
 			for (int iny = 0; iny < psc(h); iny++)
 			{
-				int v_offset = iny * psc(w) + gx * stride_w; // Calculate the starting offset for the input data
-				
-				ivec2 v_offsetv = iny * psc(w) + gx2 * stride_w;
+				ivec2 v_offsetv = iny * psc(w) + gx2 * stride_w; // Calculate the starting offset for the input data
 				
 				for (int x = 0; x < kernel_w; x++)
 				{
