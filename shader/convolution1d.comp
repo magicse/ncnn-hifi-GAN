@@ -1,5 +1,4 @@
 #version 450
-//layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 #if NCNN_fp16_storage
 #extension GL_EXT_shader_16bit_storage: require
@@ -50,90 +49,25 @@ layout (push_constant) uniform parameter
 {
     int dims;
     int w;
-	int h;
+    int h;
     int c;
     int cstep;
 
     int outdims;
     int outw;
-	int outh;
+    int outh;
     int outc;
     int outcstep;
 } p;
 
-/*
-void print_bottblob()
-{    
-	int gx = int(gl_GlobalInvocationID.x);
-    int gy = int(gl_GlobalInvocationID.y);
-    int gz = int(gl_GlobalInvocationID.z);
-	if (gx >= 1 || gy >= 1 || gz >= 1)
-			return;
-	debugPrintfEXT("Hello %i, %i\n", gx, gy);
-	for (int i = 0; i < psc(w); ++i) {
-		for (int j = 0; j < psc(h); ++j) {
-		//afp v = buffer_ld1(bottom_blob_data, 3);
-		//debugPrintfEXT("Elem %d %d: %f ", i, j, v);
-		debugPrintfEXT("Bot_Blob %d %d: %f ", i, j, bottom_blob_data[i*psc(h)+j]);
-		}
-		debugPrintfEXT("\n");
-	}
-}
-
-void print_weight()
-{    
-	int gx = int(gl_GlobalInvocationID.x);
-    int gy = int(gl_GlobalInvocationID.y);
-    int gz = int(gl_GlobalInvocationID.z);
-	if (gx >= 1 || gy >= 1 || gz >= 1)
-			return;
-	debugPrintfEXT("Hello %i, %i\n", gx, gy);
-	for (int i = 0; i < psc(w); ++i) {
-		for (int j = 0; j < psc(outh); ++j) {
-		//afp v = buffer_ld1(bottom_blob_data, 3);
-		//debugPrintfEXT("Elem %d %d: %f ", i, j, v);
-		debugPrintfEXT("Weight %d %d: %f ", i, j, weight_data[i*psc(outh)+j]);
-		}
-		debugPrintfEXT("\n");
-	}
-}
-*/
-
 void main()
 {
 
-	//debugPrintfEXT("**** Shader kernel_w, dims (%i, %i)\n", kernel_w, p.dims);
-	//debugPrintfEXT("**** Shader dims, w, h, c (%i, %i, %i, %i)\n", p.dims, p.w, p.h, p.c);
+
     int gx = int(gl_GlobalInvocationID.x) * 2;
     int gy = int(gl_GlobalInvocationID.y) * 2;
     int gz = int(gl_GlobalInvocationID.z) * 2;
-	//int gx = int(gl_GlobalInvocationID.x);
-    //int gy = int(gl_GlobalInvocationID.y);
-    //int gz = int(gl_GlobalInvocationID.z);
-	//debugPrintfEXT("**** Shader psc(outw), psc(outh), gx, gy, gz (%i, %i, %i, %i, %i)\n", psc(outw), psc(outh), gx, gy, gz);
-	//debugPrintfEXT("outw outc is (%d, %d, %d) \n", psc(outc), psc(w), psc(c));
-	//debugPrintfEXT(bottom_blob_data);
-
-/*	
-	print_bottblob();
-	print_weight();
-	ivec3 threadID = ivec3(int(gl_GlobalInvocationID.x), int(gl_GlobalInvocationID.y), int(gl_GlobalInvocationID.z));
-    // Get the total number of threads in the shader group
-    int totalThreads = int(gl_WorkGroupSize.x) * int(gl_WorkGroupSize.y) * int(gl_WorkGroupSize.z);
-    // Assign a unique ID to each thread
-	//int threadIndex = threadID.x + threadID.y * int(gl_WorkGroupSize.x) + threadID.z * int(gl_WorkGroupSize.x) * int(gl_WorkGroupSize.y);
-	int threadIndex = threadID.x + threadID.y + threadID.z;
-    // Only allow thread 0 to print
-	uint invocationID = gl_LocalInvocationID.x + gl_LocalInvocationID.y + gl_LocalInvocationID.z;
-    //if (threadIndex == 1) 
-	if (invocationID == 0) {
-			//for (int i = 0; i < psc(w)*psc(h); ++i) {
-				//debugPrintfEXT("Element %d: %f\n", i, bottom_blob_data[i]);
-				debugPrintfEXT("Start\n");
-			//}
-	}
-
-*/	
+	
     if (gx >= psc(outw) || gy >= psc(outh) || gz >= psc(outc))
         return;
 
@@ -163,57 +97,34 @@ void main()
 #if NCNN_image_shader
 
 #else
-    //for (int z = 0; z < psc(outh); z++)
-    //{
-
-        //for (int outx = 0; outx < psc(outw); outx++)
-        //{
-			//sum = afp(0.0f);
-			//int w_offset = kernel_w * psc(h) * z;
 		    int w_offset = kernel_w * psc(h) * gy; // Calculate the starting offset for the weights
 			ivec2 w_offsetv = kernel_w * psc(h) * gy2;
 			
 			for (int iny = 0; iny < psc(h); iny++)
 			{
-				//int v_offset = iny*psc(w) + outx * stride_w; 
 				int v_offset = iny * psc(w) + gx * stride_w; // Calculate the starting offset for the input data
 				
 				ivec2 v_offsetv = iny * psc(w) + gx2 * stride_w;
 				
 				for (int x = 0; x < kernel_w; x++)
 				{
-					//afp v = buffer_ld1(bottom_blob_data, v_offset + x * dilation_w); // Load the input value
-					//afp v = buffer_ld1(bottom_blob_data, ); // Load the input value
-					//afp v = buffer_ld1(bottom_blob_data, iny*psc(w)+x);
-					afp v = buffer_ld1(bottom_blob_data, v_offset + x * dilation_w);
-					afp k = buffer_ld1(weight_data, w_offset + x); // Load the weight value
-					
 					afp v0 = buffer_ld1(bottom_blob_data, v_offsetv.x + x * dilation_w);
 					afp v1 = buffer_ld1(bottom_blob_data, v_offsetv.y + x * dilation_w);
 					afp k0 = buffer_ld1(weight_data, w_offsetv.x + x); // Load the weight value
 					afp k1 = buffer_ld1(weight_data, w_offsetv.y + x); // Load the weight value
 
-					//sum += v * k; // Accumulate the sum of products
-					//sum += 0.01;
-					sum += v*k;
 					sum0 += v0 * k0;
 					sum1 += v1 * k0;
 					sum2 += v0 * k1;
 					sum3 += v1 * k1;
-					//v_offset += dilation_w;
 				}
-				w_offset += kernel_w; // Move to the next set of weights
 				w_offsetv += kernel_w; // Move to the next set of weights
 			}
-        //}
-    //}
 #endif	
-	//sum = sum + gy;
 	sum0 = activation_afp(sum0, activation_type, activation_param_0, activation_param_1);
 	sum1 = activation_afp(sum1, activation_type, activation_param_0, activation_param_1);
 	sum2 = activation_afp(sum2, activation_type, activation_param_0, activation_param_1);
 	sum3 = activation_afp(sum3, activation_type, activation_param_0, activation_param_1);
-	sum = activation_afp(sum, activation_type, activation_param_0, activation_param_1);
 	
 #if NCNN_image_shader
     image2d_st1(top_blob, ivec3(gx2.x, gy2.x, gz2.x), sum0);
@@ -221,13 +132,10 @@ void main()
     image2d_st1(top_blob, ivec3(gx2.x, gy2.y, gz2.x), sum2);
     image2d_st1(top_blob, ivec3(gx2.y, gy2.y, gz2.x), sum3);
 #else
-    //buffer_st1(top_blob_data, gy * psc(outw) + gx, sum);
 	if (gy + 1 < psc(outh) && gx + 1 < psc(outw)) buffer_st1(top_blob_data, gy2.x * psc(outw) + gx2.x, sum0);
 	if (gy + 1 < psc(outh) && gx + 1 < psc(outw)) buffer_st1(top_blob_data, gy2.x * psc(outw) + gx2.y, sum1);
 	if (gy + 1 < psc(outh) && gx + 1 < psc(outw)) buffer_st1(top_blob_data, gy2.y * psc(outw) + gx2.x, sum2);
 	if (gy + 1 < psc(outh) && gx + 1 < psc(outw)) buffer_st1(top_blob_data, gy2.y * psc(outw) + gx2.y, sum3);
-	//buffer_st1(top_blob_data, gx * psc(outh) + gy, sum);
-	//buffer_st1(top_blob_data, gx * psc(outh) + gy, 5.0f);
 #endif
 
 }
