@@ -130,23 +130,10 @@ void main()
     image3d_st4(top_blob, ivec3(gx2.x, gy2.y, gz2.x), sum2);
     image3d_st4(top_blob, ivec3(gx2.y, gy2.y, gz2.x), sum3);
 #else
-    const ivec2 gi = gz2 * psc(outcstep) + gy * psc(outw) + gx;
 	if (gy + 1 < psc(outh) && gx + 1 < psc(outw)) buffer_st4(top_blob_data, gy2.x * psc(outw) + gx2.x, sum0);
 	if (gy + 1 < psc(outh) && gx + 1 < psc(outw)) buffer_st4(top_blob_data, gy2.x * psc(outw) + gx2.y, sum1);
 	if (gy + 1 < psc(outh) && gx + 1 < psc(outw)) buffer_st4(top_blob_data, gy2.y * psc(outw) + gx2.x, sum2);
 	if (gy + 1 < psc(outh) && gx + 1 < psc(outw)) buffer_st4(top_blob_data, gy2.y * psc(outw) + gx2.y, sum3);
-/*
-    buffer_st4(top_blob_data, gi.x, sum0);
-    if (gx + 1 < psc(outw)) buffer_st4(top_blob_data, gi.x + 1, sum1);
-    if (gy + 1 < psc(outh)) buffer_st4(top_blob_data, gi.x + psc(outw), sum2);
-    if (gy + 1 < psc(outh) && gx + 1 < psc(outw)) buffer_st4(top_blob_data, gi.x + psc(outw) + 1, sum3);
-    if (gz + 1 < psc(outc))
-    {
-        buffer_st4(top_blob_data, gi.y, sum4);
-        if (gx + 1 < psc(outw)) buffer_st4(top_blob_data, gi.y + 1, sum5);
-        if (gy + 1 < psc(outh)) buffer_st4(top_blob_data, gi.y + psc(outw), sum6);
-        if (gy + 1 < psc(outh) && gx + 1 < psc(outw)) buffer_st4(top_blob_data, gi.y + psc(outw) + 1, sum7);
-    }
-*/	
+
 #endif
 }
