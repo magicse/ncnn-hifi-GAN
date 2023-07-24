@@ -64,330 +64,83 @@ layout (push_constant) uniform parameter
 {
     int dims;
     int w;
-	int h;
+    int h;
     int c;
     int cstep;
 
     int outdims;
     int outw;
-	int outh;
+    int outh;
     int outc;
     int outcstep;
 } p;
 
-/*
-void print_bottblob()
-{    
-	int gx = int(gl_GlobalInvocationID.x);
-    int gy = int(gl_GlobalInvocationID.y);
-    int gz = int(gl_GlobalInvocationID.z);
-	if (gx >= 1 || gy >= 1 || gz >= 1)
-			return;
-	debugPrintfEXT("Hello %i, %i\n", gx, gy);
-	for (int i = 0; i < psc(h)/4; ++i) {
-		for (int j = 0; j < psc(w); ++j) {
-		//for (int j = 0; j < psc(h); ++j) {
-		//afp v = buffer_ld1(bottom_blob_data, 3);
-		//debugPrintfEXT("Elem %d %d: %f ", i, j, v);
-		
-		//debugPrintfEXT("Bot_Blob %d %d: %f ", i, j, bottom_blob_data[i*psc(h)+j]);
-		
-		afpvec4 test = buffer_ld4(bottom_blob_data, i*psc(w)+j);
-		debugPrintfEXT(" Top_Blob %d %d: %v4f ", i, j, test);
-		
-		//afpvec4 value;
-		//value = buffer_ld4(bottom_blob_data, i*psc(h)+j );		
-		//debugPrintfEXT("Bot_Blob %d %d: %f ", i, j, value);
-
-		}
-		debugPrintfEXT("\n");
-	}
-}
-
-void print_weight()
-{    
-	int gx = int(gl_GlobalInvocationID.x);
-    int gy = int(gl_GlobalInvocationID.y);
-    int gz = int(gl_GlobalInvocationID.z);
-	if (gx >= 1 || gy >= 1 || gz >= 1)
-			return;
-	debugPrintfEXT("Hello %i, %i\n", gx, gy);
-	for (int i = 0; i < psc(outh)*4; ++i) {
-		for (int j = 0; j < psc(outw)*kernel_w; ++j) {
-		//afp v = buffer_ld1(bottom_blob_data, 3);
-		//debugPrintfEXT("Elem %d %d: %f ", i, j, v);
-		debugPrintfEXT("Weight %d %d: %f ", i, j, weight_data[i*psc(outw)*kernel_w+j]);
-		//afpvec4 test = buffer_ld4(weight_data, i*psc(outw)+j);
-		//debugPrintfEXT(" Weight %d %d: %v4f ", i, j, test);
-		}
-		debugPrintfEXT("\n");
-	}
-}
-
-*/
 
 void main()
 {
 
-	//debugPrintfEXT("**** Shader kernel_w, dims (%i, %i)\n", kernel_w, p.dims);
-	//debugPrintfEXT("**** Shader dims, w, h, c (%i, %i, %i, %i)\n", p.dims, p.w, p.h, p.c);
     int gx = int(gl_GlobalInvocationID.x) * 2;
     int gy = int(gl_GlobalInvocationID.y) * 2;
     int gz = int(gl_GlobalInvocationID.z) * 2;
-	//int gx = int(gl_GlobalInvocationID.x);
-    //int gy = int(gl_GlobalInvocationID.y);
-    //int gz = int(gl_GlobalInvocationID.z);
-	//debugPrintfEXT("**** Shader psc(outw), psc(outh), gx, gy, gz (%i, %i, %i, %i, %i)\n", psc(outw), psc(outh), gx, gy, gz);
-	//debugPrintfEXT("outw outc is (%d, %d, %d) \n", psc(outc), psc(w), psc(c));
-	//debugPrintfEXT(bottom_blob_data);
 
-/*	
-	print_bottblob();
-	print_weight();
-	ivec3 threadID = ivec3(int(gl_GlobalInvocationID.x), int(gl_GlobalInvocationID.y), int(gl_GlobalInvocationID.z));
-    // Get the total number of threads in the shader group
-    int totalThreads = int(gl_WorkGroupSize.x) * int(gl_WorkGroupSize.y) * int(gl_WorkGroupSize.z);
-    // Assign a unique ID to each thread
-	//int threadIndex = threadID.x + threadID.y * int(gl_WorkGroupSize.x) + threadID.z * int(gl_WorkGroupSize.x) * int(gl_WorkGroupSize.y);
-	int threadIndex = threadID.x + threadID.y + threadID.z;
-    // Only allow thread 0 to print
-	uint invocationID = gl_LocalInvocationID.x + gl_LocalInvocationID.y + gl_LocalInvocationID.z;
-    //if (threadIndex == 1) 
-	if (invocationID == 0) {
-			//for (int i = 0; i < psc(w)*psc(h); ++i) {
-				//debugPrintfEXT("Element %d: %f\n", i, bottom_blob_data[i]);
-				debugPrintfEXT("Start\n");
-			//}
-	}
-*/	
     if (gx >= psc(outw) || gy >= psc(outh) || gz >= psc(outc))
         return;
 
     const ivec2 gx2 = gx + ivec2(0, 1);
     const ivec2 gy2 = gy + ivec2(0, 1);
-	const ivec2 gy4 = gy*4 + ivec2(0, 4);
     const ivec2 gz2 = gz + ivec2(0, 1);
-
-	afpvec4 sum0 = afpvec4(0.0f);
-	afpvec4 sum1 = afpvec4(0.0f);
-	afpvec4 sum2 = afpvec4(0.0f);
-	afpvec4 sum3 = afpvec4(0.0f);	
-	
-	afpvec4 sum4 = afpvec4(0.0f);
-	afpvec4 sum5 = afpvec4(0.0f);
-
-	afpvec4 sum6 = afpvec4(0.0f);
-	afpvec4 sum7 = afpvec4(0.0f);
-	afpvec4 sum8 = afpvec4(0.0f);
-	afpvec4 sum9 = afpvec4(0.0f);	
-	
-	
-	afpvec4 sum10 = afpvec4(0.0f);
-	afpvec4 sum11 = afpvec4(0.0f);
-	afpvec4 sum12 = afpvec4(0.0f);
-	afpvec4 sum13 = afpvec4(0.0f);
-	
-	afpvec4 sum14 = afpvec4(0.0f);
-	afpvec4 sum15 = afpvec4(0.0f);
-	
-	afpvec4 sum16 = afpvec4(0.0f);
-	afpvec4 sum17 = afpvec4(0.0f);
-	afpvec4 sum18 = afpvec4(0.0f);
-	afpvec4 sum19 = afpvec4(0.0f);
 	
 	afpvec4 sum20 = afpvec4(0.0f);
 	afpvec4 sum21 = afpvec4(0.0f);
 	afpvec4 sum22 = afpvec4(0.0f);
 	afpvec4 sum23 = afpvec4(0.0f);	
 	
-	afpvec4 sum24 = afpvec4(0.0f);
-	afpvec4 sum25 = afpvec4(0.0f);
-	afpvec4 sum26 = afpvec4(0.0f);
-	afpvec4 sum27 = afpvec4(0.0f);
-
-	afpmat4 mtest = afpmat4(1.0f, 1.0f, 1.0f, 1.0f,
-							1.0f, 1.0f, 1.0f, 1.0f,
-							1.0f, 1.0f, 1.0f, 1.0f,
-							1.0f, 1.0f, 1.0f, 1.0f
-							);
-	
-	afpvec4 mytestv1 = afpvec4(1.0f, 2.0f, 3.0f, 4.0f);
-	afpvec4 mytestv2 = afpvec4(5.0f, 6.0f, 7.0f, 8.0f);
-	afpvec4 mytestv3 = afpvec4(9.0f, 10.0f, 11.0f, 12.0f);
-	afpvec4 mytestv4 = afpvec4(13.0f, 14.0f, 15.0f, 16.0f);
-	
-	afpmat4 v4mytest = afpmat4(
-						mytestv1,
-						mytestv2,
-						mytestv3,
-						mytestv4
-						);
-						
-	afpvec4 v2mytest = afpvec4(1.0f, 1.0f, 1.0f, 1.0f);
-	afpvec4 mysum = afpvec4(0.0f);
-
     if (bias_term == 1)
     {
 #if NCNN_image_shader
         sum = image2d_ld1(bias_blob, ivec2(gx, 0));
 #else
-		sum4 = buffer_ld4(bias_data, gy2.x);
-	
 		sum20 = buffer_ld4(bias_data, gy2.x);
 		sum21 = sum20;
 		
 		sum22 = buffer_ld4(bias_data, gy2.y);
 		sum23 = sum22;
-		
-		sum5 = sum4;
-		sum14 = buffer_ld4(bias_data, gy2.y);
-		
-		
-		sum15 = sum14;
-
-
-
-		//sum0 = buffer_ld4(bias_data, gy2.x);
-		//sum0.xyzw = test.zzzz;
-		//sum2 = buffer_ld4(bias_data, gy2.y);
-		//sum1 = sum0;
-		//sum3 = sum2;
-		//debugPrintfEXT(" sum0 %f, %f, %f, %f \n", sum0.x, sum0.y, sum0.z, sum0.w);
 #endif
     }
 
 #if NCNN_image_shader
 	//
 #else
-		    int w_offset = kernel_w * psc(h) * gy; // Calculate the starting offset for the weights
 			ivec2 w_offsetv = kernel_w * psc(h) * 4 * gy2;
-			//ivec2 w_offsetv = kernel_w * psc(h) * gy2;
-	
-			ivec4 gy4_0 = gy4.x + ivec4(0, 1, 2, 3);
-			ivec4 gy4_1 = gy4.y + ivec4(0, 1, 2, 3);
-			
-			ivec4 w_offsetv4;
-			ivec4 w_offsetv4_0;
-			ivec4 w_offsetv4_1;
-			w_offsetv4.xy = kernel_w * psc(h) * 4 * gy2;
-			w_offsetv4.zw = kernel_w * psc(h) * 4 * (gy2 + ivec2(2, 2));
-			w_offsetv4_0 = kernel_w * psc(h) * 4 * gy4_0;
-			w_offsetv4_1 = kernel_w * psc(h) * 4 * gy4_1;
-			
 			for (int iny = 0; iny < psc(h); iny++)
 			{
-				
 				ivec2 v_offsetv = iny * psc(w) + gx2 * stride_w;
 				
 				for (int x = 0; x < kernel_w; x++)
 				{
-					//afp v = buffer_ld1(bottom_blob_data, v_offset + x * dilation_w);
-					//afp k = buffer_ld1(weight_data, w_offset + x); // Load the weight value
-					
-					//afp v0 = buffer_ld1(bottom_blob_data, v_offsetv.x + x * dilation_w);
-					//afp v1 = buffer_ld1(bottom_blob_data, v_offsetv.y + x * dilation_w);
-					
 					afpvec4 v0 = buffer_ld4(bottom_blob_data, v_offsetv.x + x * dilation_w);
 					afpvec4 v1 = buffer_ld4(bottom_blob_data, v_offsetv.y + x * dilation_w);
-					int m0 = v_offsetv.x + x * dilation_w;
-					int m1 = v_offsetv.y + x * dilation_w;
-					
-					//if (gy2.x == 0) debugPrintfEXT("kernel_w %i, v_offsetv %v2i, offset_w %i, x %i, y %i, v0, v1, %v4f | %v4f \n", kernel_w, v_offsetv, x, m0, m1, v0, v1);
-					
-					
-					//afpmat4 k32 = sfp2afpmat4(weight_data[w_offsetv.x + x]);
-					//afpmat4 k33 = sfp2afpmat4(weight_data[w_offsetv.y + x]);
+
 					afpvec4 u0 = buffer_ld4(weight_data, (w_offsetv.x + x) + kernel_w * 0);
 					afpvec4 u1 = buffer_ld4(weight_data, (w_offsetv.x + x) + kernel_w * 1);
 					afpvec4 u2 = buffer_ld4(weight_data, (w_offsetv.x + x) + kernel_w * 2);
 					afpvec4 u3 = buffer_ld4(weight_data, (w_offsetv.x + x) + kernel_w * 3);
-					
-                afpmat4 k32 = afpmat4(
-					u0.x, u1.x, u2.x, u3.x,
-					u0.y, u1.y, u2.y, u3.y,
-					u0.z, u1.z, u2.z, u3.z,
-					u0.w, u1.w, u2.w, u3.w
-					
-                    //buffer_ld4(weight_data, (w_offsetv.x + x) + kernel_w * 0),
-                    //buffer_ld4(weight_data, (w_offsetv.x + x) + kernel_w * 1),
-                    //buffer_ld4(weight_data, (w_offsetv.x + x) + kernel_w * 2),
-                    //buffer_ld4(weight_data, (w_offsetv.x + x) + kernel_w * 3)
-					
-					//buffer_ld4(weight_data, (w_offsetv.x + x) * 4 + 0),
-                    //buffer_ld4(weight_data, (w_offsetv.x + x) * 4 + 1),
-                    //buffer_ld4(weight_data, (w_offsetv.x + x) * 4 + 2),
-                    //buffer_ld4(weight_data, (w_offsetv.x + x) * 4 + 3)
-					
-                );
+								
+			                afpmat4 k32 = afpmat4(	u0.x, u1.x, u2.x, u3.x,
+								u0.y, u1.y, u2.y, u3.y,
+								u0.z, u1.z, u2.z, u3.z,
+								u0.w, u1.w, u2.w, u3.w );
 				
-
-				//if (gy2.x == 0) debugPrintfEXT(" w_offsetv.x %i - k32[0] k32[1] k32[2] k32[3], %v4f | %v4f | %v4f | %v4f \n",  w_offsetv.x + x, k32[0], k32[1], k32[2], k32[3]);
-
-				afpvec4 uy0 = buffer_ld4(weight_data, (w_offsetv.y + x) + kernel_w * 0);
-				afpvec4 uy1 = buffer_ld4(weight_data, (w_offsetv.y + x) + kernel_w * 1);
-				afpvec4 uy2 = buffer_ld4(weight_data, (w_offsetv.y + x) + kernel_w * 2);
-				afpvec4 uy3 = buffer_ld4(weight_data, (w_offsetv.y + x) + kernel_w * 3);
+					afpvec4 uy0 = buffer_ld4(weight_data, (w_offsetv.y + x) + kernel_w * 0);
+					afpvec4 uy1 = buffer_ld4(weight_data, (w_offsetv.y + x) + kernel_w * 1);
+					afpvec4 uy2 = buffer_ld4(weight_data, (w_offsetv.y + x) + kernel_w * 2);
+					afpvec4 uy3 = buffer_ld4(weight_data, (w_offsetv.y + x) + kernel_w * 3);
+								
+			                afpmat4 k33 = afpmat4(	uy0.x, uy1.x, uy2.x, uy3.x,
+								uy0.y, uy1.y, uy2.y, uy3.y,
+								uy0.z, uy1.z, uy2.z, uy3.z,
+								uy0.w, uy1.w, uy2.w, uy3.w );					
 					
-                afpmat4 k33 = afpmat4(
-					uy0.x, uy1.x, uy2.x, uy3.x,
-					uy0.y, uy1.y, uy2.y, uy3.y,
-					uy0.z, uy1.z, uy2.z, uy3.z,
-					uy0.w, uy1.w, uy2.w, uy3.w				
-					
-                    //buffer_ld4(weight_data, (w_offsetv.y + x) + kernel_w * 0),
-                    //buffer_ld4(weight_data, (w_offsetv.y + x) + kernel_w * 1),
-                    //buffer_ld4(weight_data, (w_offsetv.y + x) + kernel_w * 2),
-                    //buffer_ld4(weight_data, (w_offsetv.y + x) + kernel_w * 3)
-                );					
-					
-				//debugPrintfEXT(" w_offsetv.y %i - k33[0] k33[1] k33[2] k33[3], %v4f | %v4f | %v4f | %v4f \n",  w_offsetv.y + x, k33[0], k33[1], k33[2], k33[3]);
-				
-					/*
-					afp k0 = buffer_ld1(weight_data, (w_offsetv4_0.x + x) + kernel_w * 0); // Load the weight value
-					afp k1 = buffer_ld1(weight_data, (w_offsetv4_0.x + x) + kernel_w * 1); // Load the weight value
-					afp k2 = buffer_ld1(weight_data, (w_offsetv4_0.x + x) + kernel_w * 2); // Load the weight value
-					afp k3 = buffer_ld1(weight_data, (w_offsetv4_0.x + x) + kernel_w * 3); // Load the weight value
-					
-					afp k4 = buffer_ld1(weight_data, (w_offsetv4_0.y + x) + kernel_w * 0); // Load the weight value
-					afp k5 = buffer_ld1(weight_data, (w_offsetv4_0.y + x) + kernel_w * 1); // Load the weight value
-					afp k6 = buffer_ld1(weight_data, (w_offsetv4_0.y + x) + kernel_w * 2); // Load the weight value
-					afp k7 = buffer_ld1(weight_data, (w_offsetv4_0.y + x) + kernel_w * 3); // Load the weight value
-					
-					afp k8 = buffer_ld1(weight_data, (w_offsetv4_0.z + x) + kernel_w * 0); // Load the weight value
-					afp k9 = buffer_ld1(weight_data, (w_offsetv4_0.z + x) + kernel_w * 1); // Load the weight value
-					afp k10 = buffer_ld1(weight_data, (w_offsetv4_0.z + x) + kernel_w * 2); // Load the weight value
-					afp k11 = buffer_ld1(weight_data, (w_offsetv4_0.z + x) + kernel_w * 3); // Load the weight value
-					
-					afp k12 = buffer_ld1(weight_data, (w_offsetv4_0.w + x) + kernel_w * 0); // Load the weight value
-					afp k13 = buffer_ld1(weight_data, (w_offsetv4_0.w + x) + kernel_w * 1); // Load the weight value
-					afp k14 = buffer_ld1(weight_data, (w_offsetv4_0.w + x) + kernel_w * 2); // Load the weight value
-					afp k15 = buffer_ld1(weight_data, (w_offsetv4_0.w + x) + kernel_w * 3); // Load the weight value
-					
-					
-					afp k16 = buffer_ld1(weight_data, (w_offsetv4_1.x + x) + kernel_w * 0); // Load the weight value
-					afp k17 = buffer_ld1(weight_data, (w_offsetv4_1.x + x) + kernel_w * 1); // Load the weight value
-					afp k18 = buffer_ld1(weight_data, (w_offsetv4_1.x + x) + kernel_w * 2); // Load the weight value
-					afp k19 = buffer_ld1(weight_data, (w_offsetv4_1.x + x) + kernel_w * 3); // Load the weight value
-					
-					afp k20 = buffer_ld1(weight_data, (w_offsetv4_1.y + x) + kernel_w * 0); // Load the weight value
-					afp k21 = buffer_ld1(weight_data, (w_offsetv4_1.y + x) + kernel_w * 1); // Load the weight value
-					afp k22 = buffer_ld1(weight_data, (w_offsetv4_1.y + x) + kernel_w * 2); // Load the weight value
-					afp k23 = buffer_ld1(weight_data, (w_offsetv4_1.y + x) + kernel_w * 3); // Load the weight value
-					
-					afp k24 = buffer_ld1(weight_data, (w_offsetv4_1.z + x) + kernel_w * 0); // Load the weight value
-					afp k25 = buffer_ld1(weight_data, (w_offsetv4_1.z + x) + kernel_w * 1); // Load the weight value
-					afp k26 = buffer_ld1(weight_data, (w_offsetv4_1.z + x) + kernel_w * 2); // Load the weight value
-					afp k27 = buffer_ld1(weight_data, (w_offsetv4_1.z + x) + kernel_w * 3); // Load the weight value
-					
-					afp k28 = buffer_ld1(weight_data, (w_offsetv4_1.w + x) + kernel_w * 0); // Load the weight value
-					afp k29 = buffer_ld1(weight_data, (w_offsetv4_1.w + x) + kernel_w * 1); // Load the weight value
-					afp k30 = buffer_ld1(weight_data, (w_offsetv4_1.w + x) + kernel_w * 2); // Load the weight value
-					afp k31 = buffer_ld1(weight_data, (w_offsetv4_1.w + x) + kernel_w * 3); // Load the weight value
-					*/
-					
-					//afpvec4 k0 = buffer_ld4(weight_data, w_offsetv.x + x); // Load the weight value
-					//afpvec4 k1 = buffer_ld4(weight_data, w_offsetv.y + x); // Load the weight value
-
 #if NCNN_fp16_packed || (NCNN_fp16_storage && !NCNN_fp16_arithmetic)
                 // GL_EXT_shader_16bit_storage does not define f16mat4 type :(
                 afpmat4 k0 = afpmat4(
@@ -406,89 +159,27 @@ void main()
 #else
                 //afpmat4 k0 = sfp2afpmat4(weight_data[w_offsetv.x + x]);
                 //afpmat4 k1 = sfp2afpmat4(weight_data[w_offsetv.y + x]);
-				//afpvec4 k0 = buffer_ld4(weight_data, (w_offsetv.x + x) * 4); // Load the weight value
-				//afpvec4 k1 = buffer_ld4(weight_data, (w_offsetv.y + x) * 4); // Load the weight value
-				//afpvec4 k0 = afpvec4(1.0f); // Load the weight value
-				//afpvec4 k1 = afpvec4(1.0f); // Load the weight value
+		//afpvec4 k0 = buffer_ld4(weight_data, (w_offsetv.x + x) * 4); // Load the weight value
+		//afpvec4 k1 = buffer_ld4(weight_data, (w_offsetv.y + x) * 4); // Load the weight value
+		//afpvec4 k0 = afpvec4(1.0f); // Load the weight value
+		//afpvec4 k1 = afpvec4(1.0f); // Load the weight value
 				
 #endif
-					//debugPrintfEXT(" k0, k1, k2, k3 %f, %f, %f, %f \n", k0, k1, k2, k3);
-					//debugPrintfEXT(" k4, k5, k6, k7 %f, %f, %f, %f \n", k4, k5, k6, k7);
 					
-					/*
-					sum0 += v0 * afpvec4(k0, k1, k2, k3); //* k0;
-					sum1 += v1 * afpvec4(k0, k1, k2, k3); //* k0;
-					sum2 += v0 * afpvec4(k4, k5, k6, k7); //* k1;
-					sum3 += v1 * afpvec4(k4, k5, k6, k7); //* k1;
-					
-					sum6 += v0 * afpvec4(k8, k9, k10, k11); //* k0;
-					sum7 += v1 * afpvec4(k8, k9, k10, k11); //* k0;
-					sum8 += v0 * afpvec4(k12, k13, k14, k15); //* k1;
-					sum9 += v1 * afpvec4(k12, k13, k14, k15); //* k1;
-					
-					sum10 += v0 * afpvec4(k16, k17, k18, k19); //* k0;
-					sum11 += v1 * afpvec4(k16, k17, k18, k19); //* k0;
-					sum12 += v0 * afpvec4(k20, k21, k22, k23); //* k1;
-					sum13 += v1 * afpvec4(k20, k21, k22, k23); //* k1;
-					
-					sum16 += v0 * afpvec4(k24, k25, k26, k27); //* k0;
-					sum17 += v1 * afpvec4(k24, k25, k26, k27); //* k0;
-					sum18 += v0 * afpvec4(k28, k29, k30, k31); //* k1;
-					sum19 += v1 * afpvec4(k28, k29, k30, k31); //* k1;
-					*/
-					//sum20 += v0 * mtest;// * k32;
-					//sum20 += afpvec4(1.0f, 1.0f, 1.0f, 1.0f) * k32;
 					sum20 += v0 * k32;
 					sum21 += v1 * k32;
 					sum22 += v0 * k33;
 					sum23 += v1 * k33;
 				}
 
-				w_offset += kernel_w; // Move to the next set of weights
-				//w_offsetv += kernel_w; 
 				w_offsetv += kernel_w*4; 
-				w_offsetv4 += kernel_w*4;
-				w_offsetv4_0 += kernel_w*4;
-				w_offsetv4_1 += kernel_w*4;
 			}
 			
-			sum4.x += sum0.x + sum0.y + sum0.z + sum0.w;
-			sum4.y += sum2.x + sum2.y + sum2.z + sum2.w;
-			sum4.z += sum6.x + sum6.y + sum6.z + sum6.w;
-			sum4.w += sum8.x + sum8.y + sum8.z + sum8.w;
-			
-			sum5.x += sum1.x + sum1.y + sum1.z + sum1.w;
-			sum5.y += sum3.x + sum3.y + sum3.z + sum3.w;
-			sum5.z += sum7.x + sum7.y + sum7.z + sum7.w;
-			sum5.w += sum9.x + sum9.y + sum9.z + sum9.w;
-
-			sum14.x += sum10.x + sum10.y + sum10.z + sum10.w;
-			sum14.y += sum12.x + sum12.y + sum12.z + sum12.w;
-			sum14.z += sum16.x + sum16.y + sum16.z + sum16.w;
-			sum14.w += sum18.x + sum18.y + sum18.z + sum18.w;
-			
-			sum15.x += sum11.x + sum11.y + sum11.z + sum11.w;
-			sum15.y += sum13.x + sum13.y + sum13.z + sum13.w;
-			sum15.z += sum17.x + sum17.y + sum17.z + sum17.w;
-			sum15.w += sum19.x + sum19.y + sum19.z + sum19.w;
-
 #endif	
-	sum4 = activation_afpvec4(sum4, activation_type, activation_param_0, activation_param_1);
-	sum5 = activation_afpvec4(sum5, activation_type, activation_param_0, activation_param_1);
-	sum14 = activation_afpvec4(sum14, activation_type, activation_param_0, activation_param_1);
-	sum15 = activation_afpvec4(sum15, activation_type, activation_param_0, activation_param_1);
 	sum20 = activation_afpvec4(sum20, activation_type, activation_param_0, activation_param_1);
 	sum21 = activation_afpvec4(sum21, activation_type, activation_param_0, activation_param_1);
 	sum22 = activation_afpvec4(sum22, activation_type, activation_param_0, activation_param_1);
 	sum23 = activation_afpvec4(sum23, activation_type, activation_param_0, activation_param_1);
-	
-	sum24 = activation_afpvec4(sum24, activation_type, activation_param_0, activation_param_1);
-	sum25 = activation_afpvec4(sum25, activation_type, activation_param_0, activation_param_1);
-	sum26 = activation_afpvec4(sum26, activation_type, activation_param_0, activation_param_1);
-	sum27 = activation_afpvec4(sum27, activation_type, activation_param_0, activation_param_1);
-	
-	//mysum = v4mytest * v2mytest;
-	//debugPrintfEXT("v4mytest[0][1] %f, v4mytest[0] %v4f, mysum %v4f \n", v4mytest[0][1], v4mytest[0], mysum);
 	
 #if NCNN_image_shader
     image2d_st1(top_blob, ivec3(gx2.x, gy2.x, gz2.x), sum0);
