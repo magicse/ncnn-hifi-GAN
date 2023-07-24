@@ -126,7 +126,8 @@ void main()
 					afpvec4 u2 = buffer_ld4(weight_data, (w_offsetv.x + x) + kernel_w * 2);
 					afpvec4 u3 = buffer_ld4(weight_data, (w_offsetv.x + x) + kernel_w * 3);
 								
-			                afpmat4 k32 = afpmat4(	u0.x, u1.x, u2.x, u3.x,
+			                afpmat4 k32 = afpmat4(	
+								u0.x, u1.x, u2.x, u3.x,
 								u0.y, u1.y, u2.y, u3.y,
 								u0.z, u1.z, u2.z, u3.z,
 								u0.w, u1.w, u2.w, u3.w );
@@ -136,7 +137,8 @@ void main()
 					afpvec4 uy2 = buffer_ld4(weight_data, (w_offsetv.y + x) + kernel_w * 2);
 					afpvec4 uy3 = buffer_ld4(weight_data, (w_offsetv.y + x) + kernel_w * 3);
 								
-			                afpmat4 k33 = afpmat4(	uy0.x, uy1.x, uy2.x, uy3.x,
+			                afpmat4 k33 = afpmat4(	
+								uy0.x, uy1.x, uy2.x, uy3.x,
 								uy0.y, uy1.y, uy2.y, uy3.y,
 								uy0.z, uy1.z, uy2.z, uy3.z,
 								uy0.w, uy1.w, uy2.w, uy3.w );					
