@@ -150,7 +150,6 @@ int hifivoice_main(int argc, char** argv)
         return -1;
     }
 
- 	//opticalflow(fr0, fr1);
 	HIFIVOICE(mel0);
 
     return 0;
