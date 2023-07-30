@@ -92,13 +92,6 @@ int Convolution1D_vulkan::create_pipeline(const Option& _opt)
 
     std::cout << "Test: WxHxC x elempack " << Test.w << " " << Test.h  << " " << Test.c << " " << Test.elempack << std::endl;
     std::cout << "Test2: WxHxC x elempack " << Test2.w << " " << Test2.h  << " " << Test2.c << " " << Test2.elempack << std::endl;
-    // Populate bottom_shapes vector
-    //Mat shape1(10, 10, 3, (void*)0); // Sample shape for the first input
-    //bottom_shapes.push_back(shape1);
-
-    // Populate top_shapes vector
-    //Mat out_shape1(8, 8, 5, (void*)0); // Sample shape for the first output
-    //top_shapes.push_back(out_shape1);
 
 	const Mat& shape =  bottom_shapes.empty() ? Mat() : bottom_shapes[0];
     const Mat& out_shape = top_shapes.empty() ? Mat() : top_shapes[0];
@@ -181,24 +174,6 @@ int Convolution1D_vulkan::create_pipeline(const Option& _opt)
     std::cout << "=== Create Pipeline: New shape_bordered WxHxC x Dims ===" << shape_bordered.w << " " << shape_bordered.h << " " << shape_bordered.c << " " << shape_bordered.d <<std::endl;
     std::cout << "=== Create Pipeline: New shape_bordered_packed WxHxC x Dims ===" << shape_bordered_packed.w << " " << shape_bordered_packed.h << " " << shape_bordered_packed.c << " " << shape_bordered_packed.d <<std::endl;
 
-  /*
-    Mat shape_packed;
-    if (shape.dims == 1) shape_packed = Mat(shape.w / elempack, (void*)0, elemsize, elempack);
-    if (shape.dims == 2) shape_packed = Mat(shape.w, shape.h / elempack, (void*)0, elemsize, elempack);
-    if (shape.dims == 3) shape_packed = Mat(shape.w, shape.h, shape.c / elempack, (void*)0, elemsize, elempack);
-
-    Mat out_shape_packed;
-    if (out_shape.dims == 1) out_shape_packed = Mat(out_shape.w / out_elempack, (void*)0, out_elemsize, out_elempack);
-    if (out_shape.dims == 2) out_shape_packed = Mat(out_shape.w, out_shape.h / out_elempack, (void*)0, out_elemsize, out_elempack);
-    if (out_shape.dims == 3) out_shape_packed = Mat(out_shape.w, out_shape.h, out_shape.c / out_elempack, (void*)0, out_elemsize, out_elempack);
-
-    if (!vkdev->shape_support_image_storage(shape_packed) || !vkdev->shape_support_image_storage(out_shape_packed))
-    {
-        support_image_storage = false;
-        opt.use_image_storage = false;
-    }
-    */
-
     // fc
     if (kernel_w == 1)
     {
@@ -261,9 +236,7 @@ int Convolution1D_vulkan::create_pipeline(const Option& _opt)
 
         padding->create_pipeline(opt);
     }
-
-
-
+    
     std::cout << "=== Create Pipeline: data_packed.create maxk : ===" << maxk << std::endl;
     std::cout << "=== Create Pipeline: data_packed.create num_input : ===" << num_input << std::endl;
     std::cout << "=== Create Pipeline: data_packed.create elempack : ===" << elempack << std::endl;
@@ -275,26 +248,8 @@ int Convolution1D_vulkan::create_pipeline(const Option& _opt)
     std::cout << "=== Create Pipeline: data_packed.create elempack * out_elempack : ===" << elempack * out_elempack << std::endl;
     std::cout << "=== Create Pipeline: weight_data WxHxC : === " << weight_data.w << " x " << weight_data.h << " x " << weight_data.c << std::endl;
     {
-        //Mat weight_data_r2 = weight_data.reshape(maxk, num_input, num_output);
         Mat weight_data_r2 = weight_data.reshape(maxk, num_input, num_output);
-        //Mat weight_data_r2 = weight_data.reshape(maxk * num_output, num_input);
-
-
-
-        //pretty_printv2(weight_data_r2);
-
-
-        //weight_data_packed = weight_data.reshape(maxk, num_input, num_output);
-        //convert_packing(weight_data_r2, weight_data_packed, out_elempack, opt);
-
-        //pretty_printv2(weight_data_packed);
-
         convert_packing(weight_data_r2, weight_data_packed, out_elempack, opt);
-
-        //pretty_printv2(weight_data_packed);
-
-
-        //Mat weight_data_r2 = weight_data.reshape(maxk, num_input, num_output);
         std::cout << "=== Create Pipeline: weight_data WxHxC reshaped : === " << weight_data_r2.w << " x " << weight_data_r2.h << " x " << weight_data_r2.c << std::endl;
 
 /*
@@ -456,69 +411,10 @@ int Convolution1D_vulkan::create_pipeline(const Option& _opt)
         pipeline_convolution1d = new Pipeline(vkdev);
         pipeline_convolution1d->set_optimal_local_size_xyz(local_size_xyz);
         pipeline_convolution1d->create(spirv.data(), spirv.size() * 4, specializations);
-
-        //pipeline_convolution1d = new Pipeline(vkdev);
-        //pipeline_convolution1d->set_optimal_local_size_xyz(local_size_xyz);
-        //pipeline_convolution1d->create(shader_type_index, opt, specializations);
     }
-
-    //pipeline_convolution = ncnn::create_layer(ncnn::LayerType::Convolution, opt_gpu);
-    //if (pipeline_convolution == nullptr)
-    //    return -100;
-
-    // Set the convolution parameters
-    /*
-    ncnn::ParamDict pd;
-    pd.set(0, num_output);
-    pd.set(1, kernel_w);
-    pd.set(2, dilation_w);
-    pd.set(3, stride_w);
-    pd.set(4, pad_left);
-    pd.set(15, pad_right);
-    pd.set(18, pad_value);
-    pd.set(5, bias_term);
-    pd.set(9, activation_type);
-    pd.set(10, activation_params);
-    */
-
-
-    //Mat shape_bordered_packed;
-
-    //Mat out_shape_packed;
-    /*
-    std::vector<vk_specialization_type> specializations(7 + 8);
-    specializations[0].i = kernel_w;
-    specializations[1].i = dilation_w;
-    specializations[2].i = stride_w;
-    specializations[3].i = bias_term;
-    specializations[4].i = activation_type;
-    specializations[5].f = activation_params.w >= 1 ? activation_params[0] : 0.f;
-    specializations[6].f = activation_params.w == 2 ? activation_params[1] : 0.f;
-    specializations[7 + 0].i = shape_bordered_packed.w;
-    specializations[7 + 1].i = shape_bordered_packed.h;
-    specializations[7 + 2].i = shape_bordered_packed.c;
-    specializations[7 + 3].i = shape_bordered_packed.cstep;
-    specializations[7 + 4].i = out_shape_packed.w;
-    specializations[7 + 5].i = out_shape_packed.h;
-    specializations[7 + 6].i = out_shape_packed.c;
-    specializations[7 + 7].i = out_shape_packed.cstep;
-    */
-
-
-    //if (pipeline_convolution->load_param(pd) != 0)
-    //    return -100;
-
-    // Load the model weights
-    //if (pipeline_convolution->load_model(ncnn::ModelBinFromMat(weight_data)) != 0)
-    //    return -100;
 
     // pack4
     {
-        //Mat weight_data_r2 = weight_data.reshape(maxk, num_input, num_output);
-        //std::cout << "=== Create Pipeline: weight_data WxHxC reshaped : === " << weight_data_r2.w << " x " << weight_data_r2.h << " x " << weight_data_r2.c << std::endl;
-        //convert_packing(weight_data_r2, weight_data_packed, out_elempack, opt);
-        //std::cout << "=== Create Pipeline: weight_data WxHxC reshaped packed : === " << weight_data_packed.w << " x " << weight_data_packed.h << " x " << weight_data_packed.c << std::endl;
-
         std::vector<vk_specialization_type> specializations(7 + 10);
         specializations[0].i = kernel_w;
         specializations[1].i = dilation_w;
@@ -581,11 +477,6 @@ int Convolution1D_vulkan::create_pipeline(const Option& _opt)
 
     // pack1to4
     {
-        //Mat weight_data_r2 = weight_data.reshape(maxk, num_input, num_output);
-        //std::cout << "=== Create Pipeline: weight_data WxHxC reshaped : === " << weight_data_r2.w << " x " << weight_data_r2.h << " x " << weight_data_r2.c << std::endl;
-        //convert_packing(weight_data_r2, weight_data_packed, out_elempack, opt);
-        //std::cout << "=== Create Pipeline: weight_data WxHxC reshaped packed : === " << weight_data_packed.w << " x " << weight_data_packed.h << " x " << weight_data_packed.c << std::endl;
-
         std::vector<vk_specialization_type> specializations(7 + 10);
         specializations[0].i = kernel_w;
         specializations[1].i = dilation_w;
@@ -705,11 +596,6 @@ int Convolution1D_vulkan::upload_model(VkTransfer& cmd, const Option& opt)
 
     std::cout << "=== Upload Model Weight_data_size: ===" << weight_data_size << std::endl;
 
-    // Load weight data from ModelBin
-    //weight_data = mb.load(weight_data_size, 0);
-    //if (weight_data.empty())
-    //    return -100;
-
     // Calculate the number of input channels
     int num_input = weight_data_size / kernel_w / num_output;
     std::cout << "=== Upload Model Num_input: === " << num_input << std::endl;
@@ -731,10 +617,6 @@ int Convolution1D_vulkan::upload_model(VkTransfer& cmd, const Option& opt)
     // Load bias data if bias_term is true
     if (bias_term)
     {
-        //bias_data = mb.load(num_output, 1);
-        //if (bias_data.empty())
-        //    return -100;
-
         // Upload bias data to Vulkan-specific resources
         if (support_image_storage && opt.use_image_storage)
         {
@@ -836,33 +718,15 @@ static int convolution1d_vulkan(const VkMat& bottom_blob, VkMat& top_blob, const
     return 0;
 }
 
-//int Convolution1D_vulkan::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
 int Convolution1D_vulkan::forward(const VkMat& bottom_blob, VkMat& top_blob, VkCompute& cmd, const Option& opt) const
 {
     std::cout << "=== Forward 1 Evalute: ===" << std::endl;
-    // convert to packing 1, aka unpacking, shall be always successful
-    //ncnn::Mat b;
-    //ncnn::Mat b_unpacked;
-    //ncnn::convert_packing(b, b_unpacked, 1);
     std::cout << "=== Forward 1 bottom_blob Elempack Elemsize: === " << bottom_blob.elempack << " " << bottom_blob.elemsize <<std::endl;
-
-    /*
-    ncnn::VkMat bottom_blob;
-    if (bottom_blob_1.elempack == 4)
-    {
-      vkdev->convert_packing(bottom_blob_1, bottom_blob, 1, cmd, opt);
-    }
-    else{
-
-        bottom_blob = bottom_blob_1;
-    }
-    */
 
     int w = bottom_blob.w;
     int h = bottom_blob.h;
 
-    //bottom_shapes[0].shape() = bottom_blob.shape();
-     std::cout << "=== Forward 1 bottom_blob shape W: === " << bottom_shapes[0].w << std::endl;
+    std::cout << "=== Forward 1 bottom_blob shape W: === " << bottom_shapes[0].w << std::endl;
     int channels = bottom_blob.c;
 
     std::cout << "=== Forward 1 bottom_blob WxHxC x Dims: === " << bottom_blob.w <<" "<< bottom_blob.h << " " << bottom_blob.c <<" "<<bottom_blob.dims << std::endl;
@@ -965,13 +829,6 @@ int Convolution1D_vulkan::forward(const VkMat& bottom_blob, VkMat& top_blob, VkC
         }
     }
 
-    /*
-    if (bottom_blob_bordered.elempack == 4)
-    {
-      vkdev->convert_packing(bottom_blob_bordered, bottom_blob_bordered, 1, cmd, opt);
-    }
-    */
-
     w = bottom_blob_bordered.w;
     h = bottom_blob_bordered.h;
     std::cout << "=== Forward 1 bottom_blob_bordered padded WxHxC x Dims : ===" << bottom_blob_bordered.w <<" "<< bottom_blob_bordered.h <<" "<< bottom_blob_bordered.c << " " << bottom_blob_bordered.d << std::endl;
@@ -980,7 +837,6 @@ int Convolution1D_vulkan::forward(const VkMat& bottom_blob, VkMat& top_blob, VkC
     int outw = (w - kernel_extent_w) / stride_w + 1;
     int outh = h;
     int out_elempack = opt.use_shader_pack8 && num_output % 8 == 0 ? 8 : num_output % 4 == 0 ? 4 : 1;
-    //int out_elempack = elempack;
     size_t out_elemsize = elemsize / elempack * out_elempack;
 
     if (opt.use_fp16_packed && !opt.use_fp16_storage)
@@ -1034,9 +890,6 @@ int Convolution1D_vulkan::forward(const VkMat& bottom_blob, VkMat& top_blob, VkC
     }
 
 
-    //top_blob.create(outw, num_output, elemsize, opt.blob_vkallocator);
-    //top_blob.create(outw, outh, num_output / out_elempack, out_elemsize, out_elempack, opt.blob_vkallocator);
-    //top_blob.create(outw, num_output / out_elempack, out_elemsize, out_elempack, opt.blob_vkallocator);
     top_blob.create(outw, num_output / out_elempack, out_elemsize, out_elempack, opt.blob_vkallocator);
     std::cout << "=== Forward 1 Num_output Out_elempack Out_elemsize: === " << num_output << " " << out_elempack << " " << out_elemsize <<std::endl;
     std::cout << "=== Forward 1 top_blob WxHxC x OutCstep: === " << top_blob.w << " " << top_blob.h << " " << top_blob.c << " " << top_blob.cstep << std::endl;
@@ -1063,19 +916,6 @@ int Convolution1D_vulkan::forward(const VkMat& bottom_blob, VkMat& top_blob, VkC
     constants[7].i = top_blob.h;
     constants[8].i = top_blob.c;
     constants[9].i = top_blob.cstep;
-    /*
-    std::vector<vk_constant_type> constants(10);
-    constants[0].i = bottom_blob_bordered.dims;
-    constants[1].i = bottom_blob_bordered.w;
-    constants[2].i = bottom_blob_bordered.h;
-    constants[3].i = bottom_blob_bordered.c;
-    constants[4].i = bottom_blob_bordered.cstep;
-    constants[5].i = top_blob.dims;
-    constants[6].i = top_blob.w;
-    constants[7].i = top_blob.h;
-    constants[8].i = top_blob.c;
-    constants[9].i = top_blob.cstep;
-    */
 
     VkMat dispatcher;
     //dispatcher.w = (top_blob.w + 1) / 2;
@@ -1104,31 +944,8 @@ int Convolution1D_vulkan::forward(const VkMat& bottom_blob, VkMat& top_blob, VkC
     }
     else // if (elempack == 1)
     {
-        //cmd.record_pipeline(pipeline_convolution1d, bindings, constants, dispatcher);
         cmd.record_pipeline(pipeline_convolution1d_pack1to4, bindings, constants, dispatcher);
     }
-
-    /*VkMat bottom_blob_bordered;
-    make_padding(bottom_blob, bottom_blob_bordered, opt);
-    if (bottom_blob_bordered.empty())
-        return -100;
-
-    const int w = bottom_blob_bordered.w;
-    const size_t elemsize = bottom_blob_bordered.elemsize;
-
-    const int kernel_extent_w = dilation_w * (kernel_w - 1) + 1;
-
-    const int outw = (w - kernel_extent_w) / stride_w + 1;
-
-    top_blob.create(outw, num_output, elemsize, opt.blob_vkallocator);
-    if (top_blob.empty())
-        return -100;
-
-    */
-
-  /*  int ret = convolution1d_vulkan(bottom_blob_bordered, top_blob, weight_data, bias_data, kernel_w, stride_w, dilation_w, activation_type, activation_params, opt);
-    if (ret != 0)
-        return ret; */
 
     return 0;
 }
@@ -1137,52 +954,6 @@ int Convolution1D_vulkan::forward(const VkMat& bottom_blob, VkMat& top_blob, VkC
 int Convolution1D_vulkan::forward(const std::vector<VkMat>& bottom_blobs, std::vector<VkMat>& top_blobs, VkCompute& cmd, const Option& opt) const
 {
     std::cout << "=== Evalute forward 2: ===" << std::endl;
-
-
-
-  /*
-    const Mat& bottom_blob = bottom_blobs[0];
-    const Mat& _weight_data = bottom_blobs[1];
-    VkMat& top_blob = top_blobs[0];
-
-    const int _kernel_w = _weight_data.w;
-    const int _num_output = _weight_data.c;
-
-    Mat weight_data_flattened;
-    flatten(_weight_data, weight_data_flattened, opt);
-    if (weight_data_flattened.empty())
-        return -100;
-
-    Mat bias_data_flattened;
-    if (bias_term)
-    {
-        const Mat& _bias_data = bottom_blobs[2];
-        flatten(_bias_data, bias_data_flattened, opt);
-        if (bias_data_flattened.empty())
-            return -100;
-    }
-
-    Mat bottom_blob_bordered;
-    make_padding(bottom_blob, bottom_blob_bordered, _kernel_w, opt);
-    if (bottom_blob_bordered.empty())
-        return -100;
-
-    const int w = bottom_blob_bordered.w;
-    const size_t elemsize = bottom_blob_bordered.elemsize;
-
-    const int kernel_extent_w = dilation_w * (_kernel_w - 1) + 1;
-
-    const int outw = (w - kernel_extent_w) / stride_w + 1;
-
-    top_blob.create(outw, _num_output, elemsize, opt.blob_allocator);
-    if (top_blob.empty())
-        return -100;
-
-    int ret = convolution1d_vulkan(bottom_blob_bordered, top_blob, weight_data_flattened, bias_data_flattened, _kernel_w, stride_w, dilation_w, activation_type, activation_params, opt);
-    if (ret != 0)
-        return ret;
-    */
-
     return 0;
 }
 
@@ -1194,37 +965,5 @@ void Convolution1D_vulkan::make_padding(const VkMat& bottom_blob, VkMat& bottom_
 
 void Convolution1D_vulkan::make_padding(const VkMat& bottom_blob, VkMat& bottom_blob_bordered, int _kernel_w, const Option& opt) const
 {
-  /*  int w = bottom_blob.w;
-
-    const int kernel_extent_w = dilation_w * (_kernel_w - 1) + 1;
-
-    bottom_blob_bordered = bottom_blob;
-    if (pad_left > 0 || pad_right > 0)
-    {
-        Option opt_b = opt;
-        opt_b.blob_allocator = opt.workspace_allocator;
-        copy_make_border(bottom_blob, bottom_blob_bordered, 0, 0, pad_left, pad_right, BORDER_CONSTANT, pad_value, opt_b);
-    }
-    else if (pad_left == -233 && pad_right == -233)
-    {
-        // tensorflow padding=SAME or onnx padding=SAME_UPPER
-        int wpad = kernel_extent_w + (w - 1) / stride_w * stride_w - w;
-        if (wpad > 0)
-        {
-            Option opt_b = opt;
-            opt_b.blob_allocator = opt.workspace_allocator;
-            copy_make_border(bottom_blob, bottom_blob_bordered, 0, 0, wpad / 2, wpad - wpad / 2, BORDER_CONSTANT, pad_value, opt_b);
-        }
-    }
-    else if (pad_left == -234 && pad_right == -234)
-    {
-        // onnx padding=SAME_LOWER
-        int wpad = kernel_extent_w + (w - 1) / stride_w * stride_w - w;
-        if (wpad > 0)
-        {
-            Option opt_b = opt;
-            opt_b.blob_allocator = opt.workspace_allocator;
-            copy_make_border(bottom_blob, bottom_blob_bordered, 0, 0, wpad - wpad / 2, wpad / 2, BORDER_CONSTANT, pad_value, opt_b);
-        }
-    } */
+    return 0;
 }
