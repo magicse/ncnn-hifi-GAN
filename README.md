@@ -22,7 +22,7 @@ The performance of WaveNet is almost the same as that of human speech, but the g
 3. The input range of the mel-spectrogram for the vocoder is approximately from -11 to 2. 
 For example, we take a mel-spectrogram saved in a regular jpg file with a magnitude range of 0..255. 
 To use mel-spectrogram from a picture, the values need to be scaled. Mel_Image = Mel_Image * (1/255) * 13 - 11 = we get a range of values from -11 to 2.
-4. Mel spectrogram paramters:
+4. Input Mel spectrogram paramters:
    - n_fft = 1024
    - num_mels = 80
    - sampling_rate = 22050
