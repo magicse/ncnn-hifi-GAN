@@ -71,7 +71,7 @@ static int HIFIVOICE(const cv::Mat& mel0)
     std::cout << melscpectro.size () << "; ch: " << melscpectro.channels () << std::endl;
 
     // cv::Mat a(h, w, CV_32FC1);
-    ncnn::Mat MelIn(melscpectro.cols, melscpectro.rows, 1, (void*)melscpectro.data);
+    ncnn::Mat MelIn(melscpectro.cols, melscpectro.rows, (void*)melscpectro.data);
     MelIn = MelIn.clone();
 
     ncnn::Mat out;
