@@ -49,9 +49,11 @@ static int HIFIVOICE(const cv::Mat& mel0)
 	HIFIVOICE.opt.num_threads = 4;
     HIFIVOICE.opt.use_vulkan_compute = true;
 
-	if (HIFIVOICE.load_param("./models/hifivoice.ncnn.param"))
+	//if (HIFIVOICE.load_param("./models/hifivoice.ncnn.param"))
+	if (HIFIVOICE.load_param("./models/generator_v2.ncnn.param"))
 		exit(-1);
-	if (HIFIVOICE.load_model("./models/hifivoice.ncnn.bin"))
+	//if (HIFIVOICE.load_model("./models/hifivoice.ncnn.bin"))
+	if (HIFIVOICE.load_model("./models/generator_v2.ncnn.bin"))
 		exit(-1);
 
     cv::Mat melscpectro;
